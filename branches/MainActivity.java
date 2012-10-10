@@ -63,13 +63,7 @@ import android.support.v4.app.NavUtils;
     		} catch (IOException e) {
     			Log.e("SensorLayer:: " , e.toString());
     			
-    		}
-    		
-    		 mSensorManager.registerListener(this , mAcc, 100);
-    	
-    		 mSensorManager.registerListener(this, mGyro, 100);
-    	
-    	      
+    		}    
         }
         
         protected void onResume() {

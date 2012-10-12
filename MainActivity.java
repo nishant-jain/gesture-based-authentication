@@ -65,9 +65,9 @@ import android.support.v4.app.NavUtils;
     			
     		}
     		
-    		 mSensorManager.registerListener(this , mAcc, 100);
+    		// mSensorManager.registerListener(this , mAcc, 100);
     	
-    		 mSensorManager.registerListener(this, mGyro, 100);
+    		 //mSensorManager.registerListener(this, mGyro, 100);
     	
     	      
         }

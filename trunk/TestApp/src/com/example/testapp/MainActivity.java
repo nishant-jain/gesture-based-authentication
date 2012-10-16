@@ -135,7 +135,16 @@ import android.support.v4.app.NavUtils;
    }
    
    public void stop(View view)
-   {
+   {    				
+	   try {
+	accwriter.write("\n\n\n");
+
+	gyrowriter.write("\n\n\n");
+
+} catch (IOException e) {
+	// TODO Auto-generated catch block
+	e.printStackTrace();
+}
 	   mSensorManager.unregisterListener(this);
    }
     	

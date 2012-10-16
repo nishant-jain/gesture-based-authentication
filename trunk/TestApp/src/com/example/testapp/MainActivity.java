@@ -30,7 +30,7 @@ import android.support.v4.app.NavUtils;
     	 private SensorManager mSensorManager;
     	    private Sensor mAcc,mGyro;
     	    //private LocationManager manager; 
-    	    File gyro,acc,prox,gps;
+    	    File gyro,acc;//prox,gps;
     	    //protected File fileToWrite;
     		protected BufferedWriter gyrowriter,gpswriter,proxwriter,accwriter;
     		FileWriter fstream1,fstream2,fstream3,fstream4;

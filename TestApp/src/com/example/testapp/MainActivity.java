@@ -44,7 +44,7 @@ import android.support.v4.app.NavUtils;
             mGyro = mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
             //mProx = mSensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
            
-        	File path = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/SensorLayer/");
+        	File path = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/FS/");
     		path.mkdirs();
     		gyro = new File(path.getAbsolutePath(), "gyro");
     		acc = new File(path.getAbsolutePath(), "acc");

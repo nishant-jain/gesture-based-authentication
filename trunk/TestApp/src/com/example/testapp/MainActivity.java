@@ -131,7 +131,14 @@ import android.support.v4.app.NavUtils;
 	   mSensorManager.registerListener(this , mAcc, 100);
    	
 		 mSensorManager.registerListener(this, mGyro, 100);
-	
+			try {
+				accwriter.write("Gesture started :");
+				gyrowriter.write("Gesture started :");
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
    }
    
    public void stop(View view)

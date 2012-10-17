@@ -74,9 +74,9 @@ import android.support.v4.app.NavUtils;
         
         protected void onResume() {
             super.onResume();
-            mSensorManager.registerListener(this, mAcc,100);
+            //mSensorManager.registerListener(this, mAcc,100);
     		 //mSensorManager.registerListener(this, mProx, 100);
-    		 mSensorManager.registerListener(this, mGyro, 100);
+    		 //mSensorManager.registerListener(this, mGyro, 100);
             //manager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 100, 0, this);
         	//manager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,100,0, this);
             

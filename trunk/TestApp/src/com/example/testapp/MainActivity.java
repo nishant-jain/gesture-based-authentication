@@ -46,8 +46,8 @@ import android.support.v4.app.NavUtils;
            
         	File path = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/FS/");
     		path.mkdirs();
-    		gyro = new File(path.getAbsolutePath(), "gyro");
-    		acc = new File(path.getAbsolutePath(), "acc");
+    		gyro = new File(path.getAbsolutePath(), "gyro.txt");
+    		acc = new File(path.getAbsolutePath(), "acc.txt");
     		//prox = new File(path.getAbsolutePath(), "prox");
     		//gps = new File(path.getAbsolutePath(), "gps11");
     		try {

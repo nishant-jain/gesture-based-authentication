@@ -155,14 +155,36 @@ import android.support.v4.app.NavUtils;
 	   mSensorManager.unregisterListener(this);
    }
     	
-    
 
+   public float DTW(float x1[] , float y1[] ,float z1[],float x2[],float y2[],float z2[],int n,int m){    //correct this according to implementation
+	  //assuming n values for 1st reading and m values for second
+	   // http://en.wikipedia.org/wiki/Dynamic_time_warping
+	   Float[][] DTW = new Float[n][m]; 
+	   int i,j;
+	   for(i=1;i<m;i++){   
+	   DTW[0][i]=Float.POSITIVE_INFINITY;
+	   }
+	   for(i=1;i<n;i++){
+		  DTW[i][0]= Float.POSITIVE_INFINITY;
+	   }
+	   DTW[0][0]=(float) 0.0;
+	   
+	   for(i=0;i<n;i++){
+		   for(j=0;j<m;j++){
+			   
+		   }
+	   }
+	   return DTW[n][m];
+   
+}
 
+public float distance(float a,float b,float c ){
+	float dis=0;
+	return dis;
+}
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.activity_main, menu);
         return true;
     }
-
-    
-}
+    } 

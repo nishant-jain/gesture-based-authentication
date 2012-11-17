@@ -171,7 +171,7 @@ import android.support.v4.app.NavUtils;
 	   double cost;
 	   for(i=0;i<n;i++){
 		   for(j=0;j<m;j++){
-			   cost=distance(x1[n],y1[n],z1[n],x2[j],y2[j],z2[j]);
+			   cost=distance(x1[n],y1[n],z1[n],x2[j],y2[j],z2[j]); // we should try to optimize this. Storing it in an array instead of calculating it everytime would be a good idea.Will implement tomorrow.
 			   DTW[i][j]=cost+ Math.min(Math.min(DTW[i-1][j],DTW[i][j-1]),DTW[i-1][j-1]);
 		   }
 	   }

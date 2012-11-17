@@ -156,30 +156,32 @@ import android.support.v4.app.NavUtils;
    }
     	
 
-   public float DTW(float x1[] , float y1[] ,float z1[],float x2[],float y2[],float z2[],int n,int m){    //correct this according to implementation
+   public double DTW(double x1[] , double y1[] ,double z1[],double x2[],double y2[],double z2[],int n,int m){    //correct this according to implementation
 	  //assuming n values for 1st reading and m values for second
 	   // http://en.wikipedia.org/wiki/Dynamic_time_warping
-	   Float[][] DTW = new Float[n][m]; 
+	   Double[][] DTW = new Double[n][m]; 
 	   int i,j;
 	   for(i=1;i<m;i++){   
-	   DTW[0][i]=Float.POSITIVE_INFINITY;
+	   DTW[0][i]=Double.POSITIVE_INFINITY;
 	   }
 	   for(i=1;i<n;i++){
-		  DTW[i][0]= Float.POSITIVE_INFINITY;
+		  DTW[i][0]= Double.POSITIVE_INFINITY;
 	   }
-	   DTW[0][0]=(float) 0.0;
-	   
+	   DTW[0][0]= 0.0;
+	   double cost;
 	   for(i=0;i<n;i++){
 		   for(j=0;j<m;j++){
-			   
+			   cost=distance(x1[n],y1[n],z1[n],x2[j],y2[j],z2[j]);
+			   DTW[i][j]=cost+ Math.min(Math.min(DTW[i-1][j],DTW[i][j-1]),DTW[i-1][j-1]);
 		   }
 	   }
 	   return DTW[n][m];
    
 }
 
-public float distance(float a,float b,float c ){
-	float dis=0;
+public double distance(double a,double b,double c,double a1,double b1,double c1 ){
+	double dis=0;
+	dis= Math.sqrt(Math.pow((a-a1),2)+Math.pow((b-b1),2)+Math.pow((c-c1),2));
 	return dis;
 }
     @Override

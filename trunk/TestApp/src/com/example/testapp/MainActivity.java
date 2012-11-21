@@ -9,10 +9,14 @@ import android.support.v4.app.NavUtils;
     import android.os.*;
 
         
+import java.io.BufferedReader;
     import java.io.BufferedWriter;
     import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
     import java.io.FileWriter;
     import java.io.IOException;
+import java.util.ArrayList;
 
     import android.hardware.Sensor;
     import android.hardware.SensorEvent;
@@ -24,7 +28,7 @@ import android.support.v4.app.NavUtils;
     import android.util.Log;
     import android.view.Menu;
     import android.view.View;
-    import android.widget.Button;
+import android.widget.Button;
 
     public class MainActivity extends Activity implements SensorEventListener{
     	 private SensorManager mSensorManager;
@@ -35,6 +39,8 @@ import android.support.v4.app.NavUtils;
     		protected BufferedWriter gyrowriter,gpswriter,proxwriter,accwriter,maccwriter,taccwriter,authwriter;
     		static BufferedWriter f;
     		FileWriter fstream1,fstream2,fstream3,fstream4,fstream5;
+    		FileReader rstream1,rstream2,rstream3;
+    		protected BufferedReader maccreader,taccreader,authreader;
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
@@ -100,7 +106,7 @@ import android.support.v4.app.NavUtils;
     			f.close();
     		//gpswriter.close();
     		//proxwriter.close();
-    			f.close();
+    			gyrowriter.close();
             } catch (IOException e) {
     			// TODO Auto-generated catch block
     			e.printStackTrace();
@@ -117,8 +123,8 @@ import android.support.v4.app.NavUtils;
              if (sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
                  //TODO: get values
             	 try {
-            		 Log.i("ACC", ""+accwriter);
-    				f.write("\nX:"+event.values[0]+",Y:"+event.values[1]+",Z:"+event.values[2]+",timestamp:"+event.timestamp+"\n");
+            		 Log.i("ACC", ""+f);
+    				f.write("\n"+event.values[0]+","+event.values[1]+","+event.values[2]);
     			} catch (IOException e) {
     				// TODO Auto-generated catch block
     				e.printStackTrace();
@@ -126,7 +132,7 @@ import android.support.v4.app.NavUtils;
              }else if (sensor.getType() == Sensor.TYPE_GYROSCOPE) {
                  //TODO: get values
             	 try {
-    				f.write("\nTime: " + event.timestamp +",Value:X :"+event.values[0]+",Y:"+event.values[1]+",Z:"+event.values[2]+"\n");
+    				gyrowriter.write("\nTime: " + event.timestamp +",Value:X :"+event.values[0]+",Y:"+event.values[1]+",Z:"+event.values[2]+"\n");
     			} catch (IOException e) {
     				// TODO Auto-generated catch block
     				e.printStackTrace();
@@ -136,26 +142,31 @@ import android.support.v4.app.NavUtils;
         
 
    public void master(View view){
+	  
 	   f=maccwriter;
+	   System.out.println("master"+f);
    }
    
-   public void training(View view){
+   public void training(View view) throws IOException{
+	   f.close();
 	   f=taccwriter;
-	   
+	   System.out.println("training"+f);
    }
        
-   public void auth(View view){
+   public void auth(View view) throws IOException{
+	   f.close();
 	   f=authwriter;
+	   System.out.println("auth"+f);
    }
    
    public void start(View view)
-   {
+   {	System.out.println("Start");
 	   mSensorManager.registerListener(this , mAcc, 100);
    	
 		 mSensorManager.registerListener(this, mGyro, 100);
 			try {
 				f.write("Gesture started :");
-				f.write("Gesture started :");
+				gyrowriter.write("Gesture started :");
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -164,11 +175,11 @@ import android.support.v4.app.NavUtils;
    }
    
    public void stop(View view)
-   {    				
+   {    		System.out.println("stop");		
 	   try {
 	f.write("\n\n\n");
-
-	f.write("\n\n\n");
+	//f.close();
+	gyrowriter.write("\n\n\n");
 
 } catch (IOException e) {
 	// TODO Auto-generated catch block
@@ -177,9 +188,79 @@ import android.support.v4.app.NavUtils;
 	   mSensorManager.unregisterListener(this);
    }
     
+   public void read(String s) throws IOException{
+	   File path1 = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/FS/macc.txt");
+	   maccreader = new BufferedReader(new FileReader(path1));
+	   String line;
+	//   int count=0,count1=0,count2=0;
+	   int files=0;
+	   double threshold,a,b;
+	   File path2 = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/FS/tacc.txt");
+	   taccreader = new BufferedReader(new FileReader(path2));
+	  ArrayList<Double> x=new ArrayList<Double>();
+	  ArrayList<Double> y=new ArrayList<Double>();
+	  ArrayList<Double> z=new ArrayList<Double>();
+	  ArrayList<Double> x1=new ArrayList<Double>();
+	  ArrayList<Double> y1=new ArrayList<Double>();
+	  ArrayList<Double> z1=new ArrayList<Double>();
+	  ArrayList<Double> x2=new ArrayList<Double>();
+	  ArrayList<Double> y2=new ArrayList<Double>();
+	  ArrayList<Double> z2=new ArrayList<Double>();
+	   while ((line = maccreader.readLine()) != null) {  
+            String[] k=line.split(",");
+            if(k.length>2){
+            x.add(Double.parseDouble(k[0]));
+            	//count++;
+            y.add(Double.parseDouble(k[1]));
+            z.add(Double.parseDouble(k[2]));	
+            }
+       }
+	   while ((line = taccreader.readLine()) != null) {  
+           String[] k=line.split(",");
+           if(k.length>2){
+        	if(files==0)   
+           {x1.add(Double.parseDouble(k[0]));
+           //	count1++;
+           y1.add(Double.parseDouble(k[1]));
+           z1.add(Double.parseDouble(k[2]));}
+        	else
+        	{	
+        		x2.add(Double.parseDouble(k[0]));
+               	//count2++;
+               y2.add(Double.parseDouble(k[1]));
+               z2.add(Double.parseDouble(k[2]));
+        	}
+           }
+           else
+        	   files++;
+      }
+	  /* double [] mx=new double[count];
+	   double [] my=new double[count];
+	   double [] mz=new double[count];
+	   double [] tx1=new double[count1];
+	   double [] tx2=new double[count1];
+	   double [] tx3=new double[count1];
+	   double [] t2=new double[count2];*/
+	   Double[] mx=(Double[]) x.toArray();
+	   Double[] my=(Double[]) y.toArray();
+	   Double[] mz=(Double[]) z.toArray();
+	   Double[] tx1=(Double[]) x1.toArray();
+	   Double[] ty1=(Double[]) y1.toArray();
+	   Double[] tz1=(Double[]) z1.toArray();
+	   Double[] tx2=(Double[]) x2.toArray();
+	   Double[] ty2=(Double[]) y2.toArray();
+	   Double[] tz2=(Double[]) z2.toArray();
+	   a=DTW(mx,my,mz,tx1,ty1,tz1,mx.length,tx1.length);
+	   b=DTW(mx,my,mz,tx2,ty2,tz2,mx.length,tx2.length);
+	   if(a>b)
+		   threshold=a;
+	   else
+		   threshold=b;
+   
+   }
    
 
-   public double DTW(double x1[] , double y1[] ,double z1[],double x2[],double y2[],double z2[],int n,int m){    //correct this according to implementation
+   public double DTW(Double x1[] , Double y1[] ,Double z1[],Double x2[],Double y2[],Double z2[],int n,int m){    //correct this according to implementation
 	  //assuming n values for 1st reading and m values for second
 	   // http://en.wikipedia.org/wiki/Dynamic_time_warping
 	   Double[][] DTW = new Double[n][m]; 

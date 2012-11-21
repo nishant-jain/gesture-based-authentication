@@ -30,10 +30,11 @@ import android.support.v4.app.NavUtils;
     	 private SensorManager mSensorManager;
     	    private Sensor mAcc,mGyro;
     	    //private LocationManager manager; 
-    	    File gyro,acc;//prox,gps;
+    	    File gyro,acc,macc,tacc,authacc;//prox,gps;
     	    //protected File fileToWrite;
-    		protected BufferedWriter gyrowriter,gpswriter,proxwriter,accwriter;
-    		FileWriter fstream1,fstream2,fstream3,fstream4;
+    		protected BufferedWriter gyrowriter,gpswriter,proxwriter,accwriter,maccwriter,taccwriter,authwriter;
+    		static BufferedWriter f;
+    		FileWriter fstream1,fstream2,fstream3,fstream4,fstream5;
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
@@ -48,6 +49,9 @@ import android.support.v4.app.NavUtils;
     		path.mkdirs();
     		gyro = new File(path.getAbsolutePath(), "gyro.txt");
     		acc = new File(path.getAbsolutePath(), "acc.txt");
+    		macc = new File(path.getAbsolutePath(),"macc.txt");
+    		tacc = new File(path.getAbsolutePath(),"tacc.txt");
+    		authacc = new File(path.getAbsolutePath(),"authacc.txt");
     		//prox = new File(path.getAbsolutePath(), "prox");
     		//gps = new File(path.getAbsolutePath(), "gps11");
     		try {
@@ -55,6 +59,12 @@ import android.support.v4.app.NavUtils;
     			gyrowriter = new BufferedWriter(fstream1);
     			fstream2 = new FileWriter(acc);
     			accwriter = new BufferedWriter(fstream2);
+    			fstream3 = new FileWriter(macc);
+    			maccwriter = new BufferedWriter(fstream3);
+    			fstream4 = new FileWriter(tacc);
+    			taccwriter = new BufferedWriter(fstream4);
+    			fstream5 = new FileWriter(authacc);
+    			authwriter = new BufferedWriter(fstream5);
     		/*	fstream3 = new FileWriter(prox);
     			proxwriter = new BufferedWriter(fstream3);
     			fstream4 = new FileWriter(gps);
@@ -87,10 +97,10 @@ import android.support.v4.app.NavUtils;
             mSensorManager.unregisterListener(this);
          //   manager.removeUpdates(this);
             try {
-    			accwriter.close();
+    			f.close();
     		//gpswriter.close();
     		//proxwriter.close();
-            gyrowriter.close();
+    			f.close();
             } catch (IOException e) {
     			// TODO Auto-generated catch block
     			e.printStackTrace();
@@ -108,7 +118,7 @@ import android.support.v4.app.NavUtils;
                  //TODO: get values
             	 try {
             		 Log.i("ACC", ""+accwriter);
-    				accwriter.write("\nX:"+event.values[0]+",Y:"+event.values[1]+",Z:"+event.values[2]+",timestamp:"+event.timestamp+"\n");
+    				f.write("\nX:"+event.values[0]+",Y:"+event.values[1]+",Z:"+event.values[2]+",timestamp:"+event.timestamp+"\n");
     			} catch (IOException e) {
     				// TODO Auto-generated catch block
     				e.printStackTrace();
@@ -116,7 +126,7 @@ import android.support.v4.app.NavUtils;
              }else if (sensor.getType() == Sensor.TYPE_GYROSCOPE) {
                  //TODO: get values
             	 try {
-    				gyrowriter.write("\nTime: " + event.timestamp +",Value:X :"+event.values[0]+",Y:"+event.values[1]+",Z:"+event.values[2]+"\n");
+    				f.write("\nTime: " + event.timestamp +",Value:X :"+event.values[0]+",Y:"+event.values[1]+",Z:"+event.values[2]+"\n");
     			} catch (IOException e) {
     				// TODO Auto-generated catch block
     				e.printStackTrace();
@@ -125,15 +135,27 @@ import android.support.v4.app.NavUtils;
         }
         
 
-
+   public void master(View view){
+	   f=maccwriter;
+   }
+   
+   public void training(View view){
+	   f=taccwriter;
+	   
+   }
+       
+   public void auth(View view){
+	   f=authwriter;
+   }
+   
    public void start(View view)
    {
 	   mSensorManager.registerListener(this , mAcc, 100);
    	
 		 mSensorManager.registerListener(this, mGyro, 100);
 			try {
-				accwriter.write("Gesture started :");
-				gyrowriter.write("Gesture started :");
+				f.write("Gesture started :");
+				f.write("Gesture started :");
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -144,9 +166,9 @@ import android.support.v4.app.NavUtils;
    public void stop(View view)
    {    				
 	   try {
-	accwriter.write("\n\n\n");
+	f.write("\n\n\n");
 
-	gyrowriter.write("\n\n\n");
+	f.write("\n\n\n");
 
 } catch (IOException e) {
 	// TODO Auto-generated catch block
@@ -154,7 +176,8 @@ import android.support.v4.app.NavUtils;
 }
 	   mSensorManager.unregisterListener(this);
    }
-    	
+    
+   
 
    public double DTW(double x1[] , double y1[] ,double z1[],double x2[],double y2[],double z2[],int n,int m){    //correct this according to implementation
 	  //assuming n values for 1st reading and m values for second

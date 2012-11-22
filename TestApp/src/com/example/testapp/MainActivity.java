@@ -29,6 +29,7 @@ import java.util.ArrayList;
     import android.view.Menu;
     import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
     public class MainActivity extends Activity implements SensorEventListener{
     	 private SensorManager mSensorManager;
@@ -180,6 +181,16 @@ import android.widget.Button;
 	f.write("\n\n\n");
 	//f.close();
 	gyrowriter.write("\n\n\n");
+	if(f.equals(authwriter)){
+		
+		f.close();
+		double a=read();
+		double b=compare();
+		if(a>b)
+			Toast.makeText(getApplicationContext(),"Threshold : "+a+" Current "+b+" Accepted",Toast.LENGTH_LONG).show();
+		else
+			Toast.makeText(getApplicationContext(),"Threshold : "+a+" Current "+b+" Not Accepted",Toast.LENGTH_LONG).show();
+	}
 
 } catch (IOException e) {
 	// TODO Auto-generated catch block
@@ -187,8 +198,61 @@ import android.widget.Button;
 }
 	   mSensorManager.unregisterListener(this);
    }
+   
+   public double compare() throws NumberFormatException, IOException{
+	   File path3 = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/FS/authacc.txt"); 
+	   authreader = new BufferedReader(new FileReader(path3));
+	   String line;
+	   File path1 = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/FS/macc.txt");
+	   maccreader = new BufferedReader(new FileReader(path1));
+	   	  ArrayList<Double> x=new ArrayList<Double>();
+		  ArrayList<Double> y=new ArrayList<Double>();
+		  ArrayList<Double> z=new ArrayList<Double>();
+		  ArrayList<Double> x1=new ArrayList<Double>();
+		  ArrayList<Double> y1=new ArrayList<Double>();
+		  ArrayList<Double> z1=new ArrayList<Double>();
+		   while ((line = authreader.readLine()) != null) {  
+	            String[] k=line.split(",");
+	            if(k.length>2){
+	            x1.add(Double.parseDouble(k[0]));
+	            	//count++;
+	            y1.add(Double.parseDouble(k[1]));
+	            z1.add(Double.parseDouble(k[2]));	
+	            }
+	       }
+		   while ((line = maccreader.readLine()) != null) {  
+	            String[] k=line.split(",");
+	            if(k.length>2){
+	            x.add(Double.parseDouble(k[0]));
+	            	//count++;
+	            y.add(Double.parseDouble(k[1]));
+	            z.add(Double.parseDouble(k[2]));	
+	            }
+	       }
+		   double [] mx=new double[x.size()];
+		   double [] my=new double[y.size()];
+		   double [] mz=new double[z.size()];
+		   double [] tx1=new double[x1.size()];
+		   double [] ty1=new double[y1.size()];
+		   double [] tz1=new double[z1.size()];
+		   for(int i=0;i<x.size();i++){
+			   mx[i]=x.get(i);
+			   my[i]=y.get(i);
+			   mz[i]=z.get(i);
+		   }
+		   System.out.println("Checkpoint reached 4");
+		   for(int i=0;i<x1.size();i++){
+			   tx1[i]=x1.get(i);
+			   ty1[i]=y1.get(i);
+			   tz1[i]=z1.get(i);
+		   }
+		   System.out.println("Checkpoint reached 5");
+	
+		   double a=DTW(mx,my,mz,tx1,ty1,tz1,mx.length,tx1.length); 
+		   return a;
+   }
     
-   public void read(String s) throws IOException{
+   public double read() throws IOException{
 	   File path1 = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/FS/macc.txt");
 	   maccreader = new BufferedReader(new FileReader(path1));
 	   String line;
@@ -212,55 +276,76 @@ import android.widget.Button;
             x.add(Double.parseDouble(k[0]));
             	//count++;
             y.add(Double.parseDouble(k[1]));
-            z.add(Double.parseDouble(k[2]));	
+            z.add(Double.parseDouble(k[2]));
+            System.out.println(Double.parseDouble(k[0])+","+Double.parseDouble(k[1])+","+Double.parseDouble(k[2]));
             }
        }
 	   while ((line = taccreader.readLine()) != null) {  
            String[] k=line.split(",");
            if(k.length>2){
-        	if(files==0)   
+        	if(files==1)   
            {x1.add(Double.parseDouble(k[0]));
            //	count1++;
            y1.add(Double.parseDouble(k[1]));
-           z1.add(Double.parseDouble(k[2]));}
+           z1.add(Double.parseDouble(k[2]));
+           System.out.println(Double.parseDouble(k[0])+","+Double.parseDouble(k[1])+","+Double.parseDouble(k[2]));}
         	else
         	{	
         		x2.add(Double.parseDouble(k[0]));
                	//count2++;
                y2.add(Double.parseDouble(k[1]));
                z2.add(Double.parseDouble(k[2]));
+               System.out.println(Double.parseDouble(k[0])+","+Double.parseDouble(k[1])+","+Double.parseDouble(k[2]));
         	}
            }
            else
         	   files++;
       }
-	  /* double [] mx=new double[count];
-	   double [] my=new double[count];
-	   double [] mz=new double[count];
-	   double [] tx1=new double[count1];
-	   double [] tx2=new double[count1];
-	   double [] tx3=new double[count1];
-	   double [] t2=new double[count2];*/
-	   Double[] mx=(Double[]) x.toArray();
-	   Double[] my=(Double[]) y.toArray();
-	   Double[] mz=(Double[]) z.toArray();
-	   Double[] tx1=(Double[]) x1.toArray();
-	   Double[] ty1=(Double[]) y1.toArray();
-	   Double[] tz1=(Double[]) z1.toArray();
-	   Double[] tx2=(Double[]) x2.toArray();
-	   Double[] ty2=(Double[]) y2.toArray();
-	   Double[] tz2=(Double[]) z2.toArray();
+	   double [] mx=new double[x.size()];
+	   double [] my=new double[y.size()];
+	   double [] mz=new double[z.size()];
+	   double [] tx1=new double[x1.size()];
+	   double [] ty1=new double[y1.size()];
+	   double [] tz1=new double[z1.size()];
+	   double [] tx2=new double[x2.size()];
+	   double [] ty2=new double[y2.size()];
+	   double [] tz2=new double[z2.size()];
+	   //double [] t2=new double[count2];*/
+	   
+	   for(int i=0;i<x.size();i++){
+		   mx[i]=x.get(i);
+		   my[i]=y.get(i);
+		   mz[i]=z.get(i);
+	   }
+	   System.out.println("Checkpoint reached 1");
+	   System.out.println(mx.length+","+x.size());
+	   for(int i=0;i<x1.size();i++){
+		   tx1[i]=x1.get(i);
+		   ty1[i]=y1.get(i);
+		   tz1[i]=z1.get(i);
+	   }
+	   System.out.println("Checkpoint reached 2");
+	   System.out.println(tx1.length+","+x1.size());
+	   for(int i=0;i<x2.size();i++){
+		   tx2[i]=x2.get(i);
+		   ty2[i]=y2.get(i);
+		   tz2[i]=z2.get(i);
+	   }
+	   System.out.println("Checkpoint reached 3");
+	   System.out.println(tx2.length+","+x2.size());
 	   a=DTW(mx,my,mz,tx1,ty1,tz1,mx.length,tx1.length);
+	   System.out.println("DTW a="+a);
 	   b=DTW(mx,my,mz,tx2,ty2,tz2,mx.length,tx2.length);
+	   System.out.println("DTW a="+b);
 	   if(a>b)
 		   threshold=a;
 	   else
 		   threshold=b;
-   
+   return threshold;
    }
-   
 
-   public double DTW(Double x1[] , Double y1[] ,Double z1[],Double x2[],Double y2[],Double z2[],int n,int m){    //correct this according to implementation
+
+   public double DTW(double x1[] , double y1[] ,double z1[],double x2[],double y2[],double z2[],int n,int m){    //correct this according to implementation
 	  //assuming n values for 1st reading and m values for second
 	   // http://en.wikipedia.org/wiki/Dynamic_time_warping
 	   Double[][] DTW = new Double[n][m]; 
@@ -275,11 +360,11 @@ import android.widget.Button;
 	   double cost;
 	   for(i=0;i<n;i++){
 		   for(j=0;j<m;j++){
-			   cost=distance(x1[n],y1[n],z1[n],x2[j],y2[j],z2[j]); // we should try to optimize this. Storing it in an array instead of calculating it everytime would be a good idea.Will implement tomorrow.
+			   cost=distance(x1[i],y1[i],z1[i],x2[j],y2[j],z2[j]); // we should try to optimize this. Storing it in an array instead of calculating it everytime would be a good idea.Will implement tomorrow.
 			   DTW[i][j]=cost+ Math.min(Math.min(DTW[i-1][j],DTW[i][j-1]),DTW[i-1][j-1]);
 		   }
 	   }
-	   return DTW[n][m];
+	   return DTW[n-1][m-1];
    
 }
 

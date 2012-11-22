@@ -65,15 +65,14 @@ import android.widget.Toast;
     		try {
     			 fstream1 = new FileWriter(gyro);
     			gyrowriter = new BufferedWriter(fstream1);
-    			fstream2 = new FileWriter(acc);
+    			fstream2 = new FileWriter(acc, false);
     			accwriter = new BufferedWriter(fstream2);
-    			fstream3 = new FileWriter(macc);
+    			fstream3 = new FileWriter(macc,false);
     			maccwriter = new BufferedWriter(fstream3);
-    			fstream4 = new FileWriter(tacc1);
+    			fstream4 = new FileWriter(tacc1,false);
     			tacc1writer = new BufferedWriter(fstream4);
-    			fstream5 = new FileWriter(authacc);
-    			authwriter = new BufferedWriter(fstream5);
-    			fstream6 = new FileWriter(tacc2);
+    			
+    			fstream6 = new FileWriter(tacc2,false);
     			tacc2writer = new BufferedWriter(fstream6);
     		/*	fstream3 = new FileWriter(prox);
     			proxwriter = new BufferedWriter(fstream3);
@@ -164,6 +163,8 @@ import android.widget.Toast;
        
    public void auth(View view) throws IOException{
 	   f.close();
+	   fstream5 = new FileWriter(authacc,false);
+		authwriter = new BufferedWriter(fstream5);
 	   f=authwriter;
 	   System.out.println("auth"+f);
    }

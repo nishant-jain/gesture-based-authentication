@@ -35,13 +35,13 @@ import android.widget.Toast;
     	 private SensorManager mSensorManager;
     	    private Sensor mAcc,mGyro;
     	    //private LocationManager manager; 
-    	    File gyro,acc,macc,tacc,authacc;//prox,gps;
+    	    File gyro,acc,macc,tacc1,tacc2,authacc;//prox,gps;
     	    //protected File fileToWrite;
-    		protected BufferedWriter gyrowriter,gpswriter,proxwriter,accwriter,maccwriter,taccwriter,authwriter;
+    		protected BufferedWriter gyrowriter,gpswriter,proxwriter,accwriter,maccwriter,tacc1writer,tacc2writer,authwriter;
     		static BufferedWriter f;
-    		FileWriter fstream1,fstream2,fstream3,fstream4,fstream5;
+    		FileWriter fstream1,fstream2,fstream3,fstream4,fstream5,fstream6;
     		FileReader rstream1,rstream2,rstream3;
-    		protected BufferedReader maccreader,taccreader,authreader;
+    		protected BufferedReader maccreader,tacc1reader,tacc2reader,authreader;
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
@@ -57,7 +57,8 @@ import android.widget.Toast;
     		gyro = new File(path.getAbsolutePath(), "gyro.txt");
     		acc = new File(path.getAbsolutePath(), "acc.txt");
     		macc = new File(path.getAbsolutePath(),"macc.txt");
-    		tacc = new File(path.getAbsolutePath(),"tacc.txt");
+    		tacc1 = new File(path.getAbsolutePath(),"tacc1.txt");
+    		tacc2 = new File(path.getAbsolutePath(),"tacc2.txt");
     		authacc = new File(path.getAbsolutePath(),"authacc.txt");
     		//prox = new File(path.getAbsolutePath(), "prox");
     		//gps = new File(path.getAbsolutePath(), "gps11");
@@ -68,10 +69,12 @@ import android.widget.Toast;
     			accwriter = new BufferedWriter(fstream2);
     			fstream3 = new FileWriter(macc);
     			maccwriter = new BufferedWriter(fstream3);
-    			fstream4 = new FileWriter(tacc);
-    			taccwriter = new BufferedWriter(fstream4);
+    			fstream4 = new FileWriter(tacc1);
+    			tacc1writer = new BufferedWriter(fstream4);
     			fstream5 = new FileWriter(authacc);
     			authwriter = new BufferedWriter(fstream5);
+    			fstream6 = new FileWriter(tacc2);
+    			tacc2writer = new BufferedWriter(fstream6);
     		/*	fstream3 = new FileWriter(prox);
     			proxwriter = new BufferedWriter(fstream3);
     			fstream4 = new FileWriter(gps);
@@ -104,7 +107,7 @@ import android.widget.Toast;
             mSensorManager.unregisterListener(this);
          //   manager.removeUpdates(this);
             try {
-    			f.close();
+    			//f.close();
     		//gpswriter.close();
     		//proxwriter.close();
     			gyrowriter.close();
@@ -148,10 +151,15 @@ import android.widget.Toast;
 	   System.out.println("master"+f);
    }
    
-   public void training(View view) throws IOException{
+   public void training1(View view) throws IOException{
 	   f.close();
-	   f=taccwriter;
-	   System.out.println("training"+f);
+	   f=tacc1writer;
+	   System.out.println("training1"+f);
+   }
+   public void training2(View view) throws IOException{
+	   f.close();
+	   f=tacc2writer;
+	   System.out.println("training2"+f);
    }
        
    public void auth(View view) throws IOException{
@@ -176,7 +184,8 @@ import android.widget.Toast;
    }
    
    public void stop(View view)
-   {    		System.out.println("stop");		
+   {    		mSensorManager.unregisterListener(this);
+   System.out.println("stop");		
 	   try {
 	f.write("\n\n\n");
 	//f.close();
@@ -186,6 +195,7 @@ import android.widget.Toast;
 		f.close();
 		double a=read();
 		double b=compare();
+		System.out.println("Threshold :"+b); 
 		if(a>b)
 			Toast.makeText(getApplicationContext(),"Threshold : "+a+" Current "+b+" Accepted",Toast.LENGTH_LONG).show();
 		else
@@ -196,7 +206,7 @@ import android.widget.Toast;
 	// TODO Auto-generated catch block
 	e.printStackTrace();
 }
-	   mSensorManager.unregisterListener(this);
+	   
    }
    
    public double compare() throws NumberFormatException, IOException{
@@ -259,8 +269,10 @@ import android.widget.Toast;
 	//   int count=0,count1=0,count2=0;
 	   int files=0;
 	   double threshold,a,b;
-	   File path2 = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/FS/tacc.txt");
-	   taccreader = new BufferedReader(new FileReader(path2));
+	   File path2 = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/FS/tacc1.txt");
+	   tacc1reader = new BufferedReader(new FileReader(path2));
+	   File path4 = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/FS/tacc2.txt");
+	   tacc2reader = new BufferedReader(new FileReader(path4));
 	  ArrayList<Double> x=new ArrayList<Double>();
 	  ArrayList<Double> y=new ArrayList<Double>();
 	  ArrayList<Double> z=new ArrayList<Double>();
@@ -280,27 +292,28 @@ import android.widget.Toast;
             System.out.println(Double.parseDouble(k[0])+","+Double.parseDouble(k[1])+","+Double.parseDouble(k[2]));
             }
        }
-	   while ((line = taccreader.readLine()) != null) {  
+	   while ((line = tacc1reader.readLine()) != null) {  
            String[] k=line.split(",");
-           if(k.length>2){
-        	if(files==1)   
+           if(k.length>2)
+        	
            {x1.add(Double.parseDouble(k[0]));
            //	count1++;
            y1.add(Double.parseDouble(k[1]));
            z1.add(Double.parseDouble(k[2]));
            System.out.println(Double.parseDouble(k[0])+","+Double.parseDouble(k[1])+","+Double.parseDouble(k[2]));}
-        	else
-        	{	
-        		x2.add(Double.parseDouble(k[0]));
-               	//count2++;
-               y2.add(Double.parseDouble(k[1]));
-               z2.add(Double.parseDouble(k[2]));
-               System.out.println(Double.parseDouble(k[0])+","+Double.parseDouble(k[1])+","+Double.parseDouble(k[2]));
-        	}
-           }
-           else
-        	   files++;
+        	
       }
+	   while ((line = tacc2reader.readLine()) != null) {  
+           String[] k=line.split(",");
+           if(k.length>2)
+	   {	
+    		x2.add(Double.parseDouble(k[0]));
+           	//count2++;
+           y2.add(Double.parseDouble(k[1]));
+           z2.add(Double.parseDouble(k[2]));
+           System.out.println(Double.parseDouble(k[0])+","+Double.parseDouble(k[1])+","+Double.parseDouble(k[2]));
+    	}
+	   }
 	   double [] mx=new double[x.size()];
 	   double [] my=new double[y.size()];
 	   double [] mz=new double[z.size()];
@@ -357,9 +370,10 @@ import android.widget.Toast;
 		  DTW[i][0]= Double.POSITIVE_INFINITY;
 	   }
 	   DTW[0][0]= 0.0;
+	   System.out.println("Checkpoint DTW reached");
 	   double cost;
-	   for(i=0;i<n;i++){
-		   for(j=0;j<m;j++){
+	   for(i=1;i<n;i++){
+		   for(j=1;j<m;j++){
 			   cost=distance(x1[i],y1[i],z1[i],x2[j],y2[j],z2[j]); // we should try to optimize this. Storing it in an array instead of calculating it everytime would be a good idea.Will implement tomorrow.
 			   DTW[i][j]=cost+ Math.min(Math.min(DTW[i-1][j],DTW[i][j-1]),DTW[i-1][j-1]);
 		   }

@@ -35,13 +35,13 @@ import android.widget.Toast;
     	 private SensorManager mSensorManager;
     	    private Sensor mAcc,mGyro;
     	    //private LocationManager manager; 
-    	    File gyro,acc,macc,tacc1,tacc2,authacc;//prox,gps;
+    	    File gyro,acc,macc,tacc1,tacc2,authacc,mgyro,tgyro1,tgyro2,authgyro;//prox,gps;
     	    //protected File fileToWrite;
-    		protected BufferedWriter gyrowriter,gpswriter,proxwriter,accwriter,maccwriter,tacc1writer,tacc2writer,authwriter;
-    		static BufferedWriter f;
-    		FileWriter fstream1,fstream2,fstream3,fstream4,fstream5,fstream6;
+    		protected BufferedWriter gyrowriter,gpswriter,proxwriter,accwriter,maccwriter,tacc1writer,tacc2writer,authwriter,mgyrowriter,tgyro1writer,tgyro2writer,gauthwriter;
+    		static BufferedWriter f,g;
+    		FileWriter fstream1,fstream2,fstream3,fstream4,fstream5,fstream6,fstream7,fstream8,fstream9,fstream10;
     		FileReader rstream1,rstream2,rstream3;
-    		protected BufferedReader maccreader,tacc1reader,tacc2reader,authreader;
+    		protected BufferedReader maccreader,tacc1reader,tacc2reader,authreader,gauthreader,mgyroreader,tgyro1reader,tgyro2reader;
         @Override
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
@@ -60,6 +60,10 @@ import android.widget.Toast;
     		tacc1 = new File(path.getAbsolutePath(),"tacc1.txt");
     		tacc2 = new File(path.getAbsolutePath(),"tacc2.txt");
     		authacc = new File(path.getAbsolutePath(),"authacc.txt");
+    		mgyro = new File(path.getAbsolutePath(),"mgyro.txt");
+    		tgyro1 = new File(path.getAbsolutePath(),"tgyro1.txt");
+    		tgyro2 = new File(path.getAbsolutePath(),"tgyro2.txt");
+    		authgyro = new File(path.getAbsolutePath(),"authgyro.txt");
     		//prox = new File(path.getAbsolutePath(), "prox");
     		//gps = new File(path.getAbsolutePath(), "gps11");
     		try {
@@ -74,7 +78,16 @@ import android.widget.Toast;
     			
     			fstream6 = new FileWriter(tacc2,false);
     			tacc2writer = new BufferedWriter(fstream6);
-    		/*	fstream3 = new FileWriter(prox);
+    			
+    			fstream7 = new FileWriter(mgyro,false);
+    			mgyrowriter = new BufferedWriter(fstream3);
+    			fstream8 = new FileWriter(tgyro1,false);
+    			tgyro1writer = new BufferedWriter(fstream4);
+    			
+    			fstream9 = new FileWriter(tgyro2,false);
+    			tgyro2writer = new BufferedWriter(fstream6);
+    			
+    			/*	fstream3 = new FileWriter(prox);
     			proxwriter = new BufferedWriter(fstream3);
     			fstream4 = new FileWriter(gps);
     			gpswriter = new BufferedWriter(fstream4);*/
@@ -135,7 +148,7 @@ import android.widget.Toast;
              }else if (sensor.getType() == Sensor.TYPE_GYROSCOPE) {
                  //TODO: get values
             	 try {
-    				gyrowriter.write("\nTime: " + event.timestamp +",Value:X :"+event.values[0]+",Y:"+event.values[1]+",Z:"+event.values[2]+"\n");
+    				g.write("\n"+event.values[0]+",Y:"+event.values[1]+",Z:"+event.values[2]);
     			} catch (IOException e) {
     				// TODO Auto-generated catch block
     				e.printStackTrace();
@@ -147,25 +160,34 @@ import android.widget.Toast;
    public void master(View view){
 	  
 	   f=maccwriter;
+	   g=gyrowriter;
 	   System.out.println("master"+f);
    }
    
    public void training1(View view) throws IOException{
 	   f.close();
+	   g.close();
 	   f=tacc1writer;
+	   g=tgyro1writer;
 	   System.out.println("training1"+f);
    }
    public void training2(View view) throws IOException{
 	   f.close();
+	   g.close();
 	   f=tacc2writer;
+	   g=tgyro2writer;
 	   System.out.println("training2"+f);
    }
        
    public void auth(View view) throws IOException{
 	   f.close();
+	   g.close();
 	   fstream5 = new FileWriter(authacc,false);
 		authwriter = new BufferedWriter(fstream5);
 	   f=authwriter;
+	   fstream5 = new FileWriter(authgyro,false);
+		gauthwriter = new BufferedWriter(fstream10);
+	   g=gauthwriter;
 	   System.out.println("auth"+f);
    }
    
@@ -176,7 +198,7 @@ import android.widget.Toast;
 		 mSensorManager.registerListener(this, mGyro, 100);
 			try {
 				f.write("Gesture started :");
-				gyrowriter.write("Gesture started :");
+				g.write("Gesture started :");
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -190,12 +212,14 @@ import android.widget.Toast;
 	   try {
 	f.write("\n\n\n");
 	//f.close();
-	gyrowriter.write("\n\n\n");
+	g.write("\n\n\n");
 	if(f.equals(authwriter)){
 		
 		f.close();
+		g.close();
 		double a=read();
 		double b=compare();
+		double d=gcompare();
 		System.out.println("Threshold :"+b); 
 		if(a>b)
 			Toast.makeText(getApplicationContext(),"Threshold : "+a+" Current "+b+" Accepted",Toast.LENGTH_LONG).show();
@@ -262,7 +286,60 @@ import android.widget.Toast;
 		   double a=DTW(mx,my,mz,tx1,ty1,tz1,mx.length,tx1.length); 
 		   return a;
    }
-    
+   
+   public double gcompare() throws NumberFormatException, IOException{
+	   File path3 = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/FS/authgyro.txt"); 
+	   gauthreader = new BufferedReader(new FileReader(path3));
+	   String line;
+	   File path1 = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/FS/mgyro.txt");
+	   mgyroreader = new BufferedReader(new FileReader(path1));
+	   	  ArrayList<Double> x=new ArrayList<Double>();
+		  ArrayList<Double> y=new ArrayList<Double>();
+		  ArrayList<Double> z=new ArrayList<Double>();
+		  ArrayList<Double> x1=new ArrayList<Double>();
+		  ArrayList<Double> y1=new ArrayList<Double>();
+		  ArrayList<Double> z1=new ArrayList<Double>();
+		   while ((line = gauthreader.readLine()) != null) {  
+	            String[] k=line.split(",");
+	            if(k.length>2){
+	            x1.add(Double.parseDouble(k[0]));
+	            	//count++;
+	            y1.add(Double.parseDouble(k[1]));
+	            z1.add(Double.parseDouble(k[2]));	
+	            }
+	       }
+		   while ((line = mgyroreader.readLine()) != null) {  
+	            String[] k=line.split(",");
+	            if(k.length>2){
+	            x.add(Double.parseDouble(k[0]));
+	            	//count++;
+	            y.add(Double.parseDouble(k[1]));
+	            z.add(Double.parseDouble(k[2]));	
+	            }
+	       }
+		   double [] mx=new double[x.size()];
+		   double [] my=new double[y.size()];
+		   double [] mz=new double[z.size()];
+		   double [] tx1=new double[x1.size()];
+		   double [] ty1=new double[y1.size()];
+		   double [] tz1=new double[z1.size()];
+		   for(int i=0;i<x.size();i++){
+			   mx[i]=x.get(i);
+			   my[i]=y.get(i);
+			   mz[i]=z.get(i);
+		   }
+		   System.out.println("Checkpoint reached 6");
+		   for(int i=0;i<x1.size();i++){
+			   tx1[i]=x1.get(i);
+			   ty1[i]=y1.get(i);
+			   tz1[i]=z1.get(i);
+		   }
+		   System.out.println("Checkpoint reached 7");
+	
+		   double a=DTW(mx,my,mz,tx1,ty1,tz1,mx.length,tx1.length); 
+		   return a;
+   }
+   
    public double read() throws IOException{
 	   File path1 = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/FS/macc.txt");
 	   maccreader = new BufferedReader(new FileReader(path1));
@@ -358,7 +435,101 @@ import android.widget.Toast;
    return threshold;
    }
 
-
+   public double gread() throws IOException{
+	   File path1 = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/FS/mgyro.txt");
+	   mgyroreader = new BufferedReader(new FileReader(path1));
+	   String line;
+	//   int count=0,count1=0,count2=0;
+	   int files=0;
+	   double threshold,a,b;
+	   File path2 = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/FS/tgyro1.txt");
+	   tgyro1reader = new BufferedReader(new FileReader(path2));
+	   File path4 = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/FS/tgyro2.txt");
+	   tgyro2reader = new BufferedReader(new FileReader(path4));
+	  ArrayList<Double> x=new ArrayList<Double>();
+	  ArrayList<Double> y=new ArrayList<Double>();
+	  ArrayList<Double> z=new ArrayList<Double>();
+	  ArrayList<Double> x1=new ArrayList<Double>();
+	  ArrayList<Double> y1=new ArrayList<Double>();
+	  ArrayList<Double> z1=new ArrayList<Double>();
+	  ArrayList<Double> x2=new ArrayList<Double>();
+	  ArrayList<Double> y2=new ArrayList<Double>();
+	  ArrayList<Double> z2=new ArrayList<Double>();
+	   while ((line = mgyroreader.readLine()) != null) {  
+            String[] k=line.split(",");
+            if(k.length>2){
+            x.add(Double.parseDouble(k[0]));
+            	//count++;
+            y.add(Double.parseDouble(k[1]));
+            z.add(Double.parseDouble(k[2]));
+            System.out.println(Double.parseDouble(k[0])+","+Double.parseDouble(k[1])+","+Double.parseDouble(k[2]));
+            }
+       }
+	   while ((line = tgyro1reader.readLine()) != null) {  
+           String[] k=line.split(",");
+           if(k.length>2)
+        	
+           {x1.add(Double.parseDouble(k[0]));
+           //	count1++;
+           y1.add(Double.parseDouble(k[1]));
+           z1.add(Double.parseDouble(k[2]));
+           System.out.println(Double.parseDouble(k[0])+","+Double.parseDouble(k[1])+","+Double.parseDouble(k[2]));}
+        	
+      }
+	   while ((line = tgyro2reader.readLine()) != null) {  
+           String[] k=line.split(",");
+           if(k.length>2)
+	   {	
+    		x2.add(Double.parseDouble(k[0]));
+           	//count2++;
+           y2.add(Double.parseDouble(k[1]));
+           z2.add(Double.parseDouble(k[2]));
+           System.out.println(Double.parseDouble(k[0])+","+Double.parseDouble(k[1])+","+Double.parseDouble(k[2]));
+    	}
+	   }
+	   double [] mx=new double[x.size()];
+	   double [] my=new double[y.size()];
+	   double [] mz=new double[z.size()];
+	   double [] tx1=new double[x1.size()];
+	   double [] ty1=new double[y1.size()];
+	   double [] tz1=new double[z1.size()];
+	   double [] tx2=new double[x2.size()];
+	   double [] ty2=new double[y2.size()];
+	   double [] tz2=new double[z2.size()];
+	   //double [] t2=new double[count2];*/
+	   
+	   for(int i=0;i<x.size();i++){
+		   mx[i]=x.get(i);
+		   my[i]=y.get(i);
+		   mz[i]=z.get(i);
+	   }
+	   System.out.println("Checkpoint reached 1");
+	   System.out.println(mx.length+","+x.size());
+	   for(int i=0;i<x1.size();i++){
+		   tx1[i]=x1.get(i);
+		   ty1[i]=y1.get(i);
+		   tz1[i]=z1.get(i);
+	   }
+	   System.out.println("Checkpoint reached 2");
+	   System.out.println(tx1.length+","+x1.size());
+	   for(int i=0;i<x2.size();i++){
+		   tx2[i]=x2.get(i);
+		   ty2[i]=y2.get(i);
+		   tz2[i]=z2.get(i);
+	   }
+	   System.out.println("Checkpoint reached 3");
+	   System.out.println(tx2.length+","+x2.size());
+	   a=DTW(mx,my,mz,tx1,ty1,tz1,mx.length,tx1.length);
+	   System.out.println("DTW a="+a);
+	   b=DTW(mx,my,mz,tx2,ty2,tz2,mx.length,tx2.length);
+	   System.out.println("DTW a="+b);
+	   if(a>b)
+		   threshold=a;
+	   else
+		   threshold=b;
+   return threshold;
+   }
+   
    public double DTW(double x1[] , double y1[] ,double z1[],double x2[],double y2[],double z2[],int n,int m){    //correct this according to implementation
 	  //assuming n values for 1st reading and m values for second
 	   // http://en.wikipedia.org/wiki/Dynamic_time_warping
